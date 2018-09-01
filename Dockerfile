@@ -27,12 +27,14 @@ RUN make modules
 
 
 FROM nginx:1.15.3-alpine as production
-RUN apk add --no-cache libldap 
+
 COPY --from=builder /tmp/src/nginx-$NGINX_VERSION/objs/ngx_http_auth_ldap_module.so /usr/lib/nginx/modules/ngx_http_auth_ldap_module.so
-RUN sed -i '1i load_module "/usr/lib/nginx/modules/ngx_http_auth_ldap_module.so";' /etc/nginx/nginx.conf
-RUN sed -i '16i include /etc/nginx/ldap.conf;' /etc/nginx/nginx.conf
-RUN rm -fr \
-    /etc/nginx/*.default \
-    /tmp/* \
-    /var/tmp/* \
-    /var/cache/apk/*
+RUN apk add --no-cache libldap \
+    && sed -i '1i load_module "/usr/lib/nginx/modules/ngx_http_auth_ldap_module.so";' /etc/nginx/nginx.conf \
+    && sed -i '16i include /etc/nginx/ldap.conf;' /etc/nginx/nginx.conf \
+    && touch /etc/nginx/ldap.conf \
+    && rm -fr \
+        /etc/nginx/*.default \
+        /tmp/* \
+        /var/tmp/* \
+        /var/cache/apk/*
