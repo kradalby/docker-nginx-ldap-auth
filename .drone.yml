@@ -1,15 +1,35 @@
-pipeline:
-  build:
-    image: plugins/docker
-    repo: kradalby/nginx-ldap-auth
-    auto_tag: true
-    secrets: [ docker_username, docker_password ]
+---
+kind: pipeline
+name: default
 
-  notify:
-    image: drillster/drone-email
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build
+  pull: if-not-exists
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    repo: kradalby/nginx-ldap-auth
+  environment:
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+    DOCKER_USERNAME:
+      from_secret: docker_username
+
+- name: notify
+  pull: if-not-exists
+  image: drillster/drone-email
+  settings:
+    from: drone@drone.fap.no
     host: mail.ntnu.fap.no
     port: 25
-    from: drone@drone.fap.no
-    recipients: [ kradalby@kradalby.no ]
-    when:
-      status: [ success, changed, failure ]
+    recipients:
+    - kradalby@kradalby.no
+  when:
+    status:
+    - success
+    - changed
+    - failure

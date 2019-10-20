@@ -1,4 +1,4 @@
-FROM nginx:1.15.3-alpine as builder
+FROM nginx:1.17.4-alpine as builder
 
 RUN apk add --no-cache --virtual .build-deps \
       curl \
@@ -26,7 +26,7 @@ RUN ./configure --with-http_ssl_module --with-compat --add-dynamic-module=/tmp/s
 RUN make modules
 
 
-FROM nginx:1.15.3-alpine as production
+FROM nginx:1.17.4-alpine as production
 
 COPY --from=builder /tmp/src/nginx-$NGINX_VERSION/objs/ngx_http_auth_ldap_module.so /usr/lib/nginx/modules/ngx_http_auth_ldap_module.so
 RUN apk add --no-cache libldap \
